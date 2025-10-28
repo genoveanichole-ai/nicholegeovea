@@ -2,7 +2,7 @@ from flask import Flask, jsonify, render_template_string, request, redirect, url
 
 app = Flask(__name__)
 
-# Temporary in-memory storage
+# Temporary in-memory storage for students
 students = []
 
 # ---------- PAGE 1: HOME ----------
@@ -12,7 +12,7 @@ home_html = """
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Data </title>
+  <title>Welcome to Student Data 🚀</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -35,16 +35,16 @@ home_html = """
       color: #222;
     }
     .btn-add { background: linear-gradient(90deg, #FFD700, #FFA500); }
-    .btn-book { background: linear-gradient(90deg, #00C9FF, #92FE9D); }
+    .btn-view { background: linear-gradient(90deg, #00C9FF, #92FE9D); }
     .btn-custom:hover { transform: scale(1.1); }
   </style>
 </head>
 <body>
   <div>
-    <h1>💫 Welcome to <span style="color:#FFD700;">Student Data</span></h1>
-    <p>Manage and view your student information easily.</p>
+    <h1>💫 Welcome to <span style="color:#FFD700;">Student Data Portal</span></h1>
+    <p>Manage your students easily.</p>
     <a href="/add_student" class="btn btn-custom btn-add">➕ Add Student</a>
-    <a href="/student_book" class="btn btn-custom btn-book">📘 View Student Book</a>
+    <a href="/view_students" class="btn btn-custom btn-view">👀 View Students</a>
   </div>
 </body>
 </html>
@@ -91,7 +91,6 @@ add_student_html = """
       border-radius: 50px;
       padding: 10px 25px;
       font-weight: bold;
-      width: 100%;
     }
     .btn-submit:hover { transform: scale(1.05); }
     a { color: #FFD700; text-decoration: none; }
@@ -121,21 +120,21 @@ add_student_html = """
     <div class="mb-3">
       <input type="text" class="form-control" name="address" placeholder="Address" required>
     </div>
-    <button type="submit" class="btn-submit">Add to Book 📖</button>
-    <p class="text-center mt-3"><a href="/">← Back to Home</a></p>
+    <button type="submit" class="btn btn-submit w-100">Add Student 📖</button>
+    <p class="text-center mt-3"><a href="/">← Back to Portal</a></p>
   </form>
 </body>
 </html>
 """
 
-# ---------- PAGE 3: STUDENT BOOK ----------
-book_html = """
+# ---------- PAGE 3: VIEW STUDENTS ----------
+view_students_html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Book 📘</title>
+  <title>View Students 👀</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -167,7 +166,7 @@ book_html = """
 </head>
 <body>
   <div class="container">
-    <h2 class="text-center mb-4">📖 Student Book</h2>
+    <h2 class="text-center mb-4">👀 Students</h2>
     {% if students %}
     <table class="table table-striped table-bordered text-center align-middle">
       <thead>
@@ -200,7 +199,7 @@ book_html = """
     {% endif %}
     <div class="text-center mt-4">
       <a href="/add_student" class="btn btn-warning me-2">➕ Add Another</a>
-      <a href="/" class="btn-back">← Back to Home</a>
+      <a href="/" class="btn-back">← Back to Portal</a>
     </div>
   </div>
 </body>
@@ -225,12 +224,12 @@ def add_student():
             "address": request.form['address']
         }
         students.append(student)
-        return redirect(url_for('student_book'))
+        return redirect(url_for('view_students'))
     return render_template_string(add_student_html)
 
-@app.route('/student_book')
-def student_book():
-    return render_template_string(book_html, students=students)
+@app.route('/view_students')
+def view_students():
+    return render_template_string(view_students_html, students=students)
 
 @app.route('/student_api')
 def student_api():
