@@ -191,17 +191,16 @@ def student_data():
 @app.route('/student_api')
 def student_api():
     student_data = {
-        "student_id": "2025-001",
-        "name": "Kuka Zechariah",
-        "gender": "Male",
-        "grade_level": 10,
-        "section": "Alpha",
-        "course": "ICT - Programming",
-        "email": "kuka.zechariah@studentportal.edu",
-        "address": "Brgy. Malipayon, Iloilo City",
-        "hobby": "Coding, Gaming, Music",
-        "quote": "Dream big, code bigger.",
-        "api_version": "v3.1"
+        "student_id": 
+        "name": 
+        "gender":
+        "grade_level": 
+        "section": 
+        "course": 
+        "email": 
+        "address": 
+        "hobby": 
+        "quote": 
     }
     return jsonify(student_data)
 
