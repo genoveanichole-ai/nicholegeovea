@@ -2,7 +2,7 @@ from flask import Flask, jsonify, render_template_string
 
 app = Flask(__name__)
 
-# ---------- PAGE 1: WELCOME ----------
+# ---------- PAGE 1: HOME / PORTAL ----------
 home_html = """
 <!DOCTYPE html>
 <html lang="en">
@@ -15,13 +15,12 @@ home_html = """
         body {
             background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
             color: white;
+            font-family: 'Poppins', sans-serif;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             text-align: center;
-            font-family: 'Poppins', sans-serif;
-            overflow: hidden;
         }
         h1 {
             font-size: 3rem;
@@ -46,92 +45,71 @@ home_html = """
             background: linear-gradient(90deg, #92FE9D, #00C9FF);
             transform: scale(1.1);
         }
+        p {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>💫 Welcome to <span style="color:#FFD700;">KUKA API</span></h1>
-        <p class="lead mt-3">Explore the magic of data with style and power.</p>
-        <a href="/dashboard" class="btn btn-enter">Enter App 🚪</a>
+    <div>
+        <h1>💫 Welcome to <span style="color:#FFD700;">KUKA API Portal</span></h1>
+        <p>Access your student profile and data anytime, anywhere.</p>
+        <a href="/student_data" class="btn btn-enter">Go to Student Data 🎓</a>
     </div>
 </body>
 </html>
 """
 
-# ---------- PAGE 2: DASHBOARD ----------
-dashboard_html = """
+# ---------- PAGE 2: STUDENT DATA ----------
+student_html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KUKA Student Dashboard 🎓</title>
+    <title>KUKA Student Data 🎓</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #1f1c2c, #928DAB);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             font-family: 'Poppins', sans-serif;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
+            padding: 30px;
         }
         .card {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.12);
             border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(31,38,135,0.37);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.18);
             padding: 40px;
-            text-align: center;
-            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            text-align: left;
+            max-width: 600px;
+            width: 100%;
+            transition: 0.4s;
         }
         .card:hover {
             transform: scale(1.03);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
-        .btn-fetch {
-            background: linear-gradient(90deg, #FF512F, #DD2476);
-            border: none;
-            color: white;
-            font-weight: 600;
-            border-radius: 50px;
-            padding: 12px 25px;
-            transition: 0.3s;
-        }
-        .btn-fetch:hover {
-            background: linear-gradient(90deg, #DD2476, #FF512F);
-            transform: scale(1.05);
-        }
-        .loading {
-            display: none;
-            margin-top: 20px;
-        }
-        .spinner-border {
-            width: 3rem;
-            height: 3rem;
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
             color: #FFD700;
         }
-        .result-box {
-            margin-top: 25px;
-            display: none;
-            background-color: rgba(0,0,0,0.4);
-            padding: 20px;
-            border-radius: 10px;
-            animation: fadeIn 1.5s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        pre {
-            color: #00FFAA;
+        .info-label {
             font-weight: 600;
-            text-align: left;
+            color: #00FFAA;
+        }
+        .info-value {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
         }
         .btn-back {
-            margin-top: 20px;
+            margin-top: 25px;
             background-color: transparent;
             border: 2px solid #FFD700;
             color: #FFD700;
@@ -139,62 +117,63 @@ dashboard_html = """
             padding: 10px 25px;
             text-decoration: none;
             transition: 0.3s;
+            display: inline-block;
         }
         .btn-back:hover {
             background-color: #FFD700;
             color: #222;
         }
+        .btn-json {
+            background: linear-gradient(90deg, #FF512F, #F09819);
+            border: none;
+            color: white;
+            border-radius: 50px;
+            padding: 10px 25px;
+            margin-top: 15px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-json:hover {
+            background: linear-gradient(90deg, #F09819, #FF512F);
+        }
+        .json-box {
+            background: rgba(0,0,0,0.4);
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            color: #00FFAA;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card mx-auto" style="max-width: 500px;">
-            <h1>🎓 Student Info</h1>
-            <p>Click below to get data from your Flask API.</p>
-            <button id="fetchBtn" class="btn btn-fetch">Fetch Student Data ⚡</button>
+    <div class="card">
+        <h2>🎓 Student Information</h2>
+        <div class="info-value"><span class="info-label">Student ID:</span> 2025-001</div>
+        <div class="info-value"><span class="info-label">Name:</span> Kuka Zechariah</div>
+        <div class="info-value"><span class="info-label">Gender:</span> Male</div>
+        <div class="info-value"><span class="info-label">Grade Level:</span> 10</div>
+        <div class="info-value"><span class="info-label">Section:</span> Alpha</div>
+        <div class="info-value"><span class="info-label">Course:</span> ICT - Programming</div>
+        <div class="info-value"><span class="info-label">Email:</span> kuka.zechariah@studentportal.edu</div>
+        <div class="info-value"><span class="info-label">Address:</span> Brgy. Malipayon, Iloilo City</div>
+        <div class="info-value"><span class="info-label">Hobby:</span> Coding 💻, Gaming 🎮, Music 🎧</div>
+        <div class="info-value"><span class="info-label">Quote:</span> "Dream big, code bigger." 🌟</div>
 
-            <div class="loading" id="loading">
-                <div class="spinner-border" role="status"></div>
-                <p>Fetching data... Please wait 😎</p>
-            </div>
+        <button id="show-json" class="btn btn-json">Show API JSON 📦</button>
+        <pre id="json-box" class="json-box"></pre>
 
-            <div id="result" class="result-box">
-                <h5>📘 API Response:</h5>
-                <pre id="jsonData"></pre>
-            </div>
-
-            <a href="/" class="btn-back">← Back to Home</a>
-        </div>
+        <a href="/" class="btn-back">← Back to Portal</a>
     </div>
 
     <script>
-        document.getElementById('fetchBtn').addEventListener('click', async () => {
-            const loadingDiv = document.getElementById('loading');
-            const resultDiv = document.getElementById('result');
-            const jsonPre = document.getElementById('jsonData');
-
-            // Hide result, show loading animation
-            resultDiv.style.display = 'none';
-            loadingDiv.style.display = 'block';
-            jsonPre.textContent = "";
-
-            // Wait 2 seconds to simulate loading (pasurunu da effect 😎)
-            setTimeout(async () => {
-                const response = await fetch('/student');
-                const data = await response.json();
-
-                loadingDiv.style.display = 'none';
-                resultDiv.style.display = 'block';
-
-                // Typewriter effect for JSON
-                const text = JSON.stringify(data, null, 2);
-                let i = 0;
-                const typing = setInterval(() => {
-                    jsonPre.textContent += text.charAt(i);
-                    i++;
-                    if (i > text.length) clearInterval(typing);
-                }, 20);
-            }, 1500);
+        document.getElementById('show-json').addEventListener('click', async () => {
+            const res = await fetch('/student_api');
+            const data = await res.json();
+            const pre = document.getElementById('json-box');
+            pre.textContent = JSON.stringify(data, null, 2);
+            pre.style.display = 'block';
         });
     </script>
 </body>
@@ -205,20 +184,24 @@ dashboard_html = """
 def home():
     return render_template_string(home_html)
 
-@app.route('/dashboard')
-def dashboard():
-    return render_template_string(dashboard_html)
+@app.route('/student_data')
+def student_data():
+    return render_template_string(student_html)
 
-@app.route('/student')
-def student():
+@app.route('/student_api')
+def student_api():
     student_data = {
+        "student_id": "2025-001",
         "name": "Kuka Zechariah",
-        "grade": 10,
+        "gender": "Male",
+        "grade_level": 10,
         "section": "Alpha",
-        "hobby": "Coding, Music 🎧, Gaming 🎮",
-        "goal": "Build cool APIs like this one!",
-        "favorite_quote": "Dream big, code bigger 💻",
-        "api_version": "v2.1"
+        "course": "ICT - Programming",
+        "email": "kuka.zechariah@studentportal.edu",
+        "address": "Brgy. Malipayon, Iloilo City",
+        "hobby": "Coding, Gaming, Music",
+        "quote": "Dream big, code bigger.",
+        "api_version": "v3.1"
     }
     return jsonify(student_data)
 
