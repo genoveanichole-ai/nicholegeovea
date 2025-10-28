@@ -12,7 +12,7 @@ home_html = """
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>welcome to Student Data 🚀</title>
+  <title>Student Data </title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -41,8 +41,8 @@ home_html = """
 </head>
 <body>
   <div>
-    <h1>💫 Welcome to <span style="color:#FFD700;">KUKA Student Portal</span></h1>
-    <p>Manage your students easily.</p>
+    <h1>💫 Welcome to <span style="color:#FFD700;">Student Data</span></h1>
+    <p>Manage and view your student information easily.</p>
     <a href="/add_student" class="btn btn-custom btn-add">➕ Add Student</a>
     <a href="/student_book" class="btn btn-custom btn-book">📘 View Student Book</a>
   </div>
@@ -91,6 +91,7 @@ add_student_html = """
       border-radius: 50px;
       padding: 10px 25px;
       font-weight: bold;
+      width: 100%;
     }
     .btn-submit:hover { transform: scale(1.05); }
     a { color: #FFD700; text-decoration: none; }
@@ -120,8 +121,8 @@ add_student_html = """
     <div class="mb-3">
       <input type="text" class="form-control" name="address" placeholder="Address" required>
     </div>
-    <button type="submit" class="btn btn-submit w-100">Add to Book 📖</button>
-    <p class="text-center mt-3"><a href="/">← Back to Portal</a></p>
+    <button type="submit" class="btn-submit">Add to Book 📖</button>
+    <p class="text-center mt-3"><a href="/">← Back to Home</a></p>
   </form>
 </body>
 </html>
@@ -199,7 +200,7 @@ book_html = """
     {% endif %}
     <div class="text-center mt-4">
       <a href="/add_student" class="btn btn-warning me-2">➕ Add Another</a>
-      <a href="/" class="btn-back">← Back to Portal</a>
+      <a href="/" class="btn-back">← Back to Home</a>
     </div>
   </div>
 </body>
