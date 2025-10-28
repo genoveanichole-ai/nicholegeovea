@@ -46,17 +46,10 @@ home_html = """
             background: linear-gradient(90deg, #92FE9D, #00C9FF);
             transform: scale(1.1);
         }
-        .fade-in {
-            animation: fadeIn 3s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
-    <div class="container fade-in">
+    <div class="container">
         <h1>💫 Welcome to <span style="color:#FFD700;">KUKA API</span></h1>
         <p class="lead mt-3">Explore the magic of data with style and power.</p>
         <a href="/dashboard" class="btn btn-enter">Enter App 🚪</a>
@@ -111,16 +104,31 @@ dashboard_html = """
             background: linear-gradient(90deg, #DD2476, #FF512F);
             transform: scale(1.05);
         }
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: #FFD700;
+        }
         .result-box {
             margin-top: 25px;
             display: none;
             background-color: rgba(0,0,0,0.4);
             padding: 20px;
             border-radius: 10px;
+            animation: fadeIn 1.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         pre {
             color: #00FFAA;
             font-weight: 600;
+            text-align: left;
         }
         .btn-back {
             margin-top: 20px;
@@ -145,6 +153,11 @@ dashboard_html = """
             <p>Click below to get data from your Flask API.</p>
             <button id="fetchBtn" class="btn btn-fetch">Fetch Student Data ⚡</button>
 
+            <div class="loading" id="loading">
+                <div class="spinner-border" role="status"></div>
+                <p>Fetching data... Please wait 😎</p>
+            </div>
+
             <div id="result" class="result-box">
                 <h5>📘 API Response:</h5>
                 <pre id="jsonData"></pre>
@@ -156,10 +169,32 @@ dashboard_html = """
 
     <script>
         document.getElementById('fetchBtn').addEventListener('click', async () => {
-            const response = await fetch('/student');
-            const data = await response.json();
-            document.getElementById('jsonData').textContent = JSON.stringify(data, null, 2);
-            document.getElementById('result').style.display = 'block';
+            const loadingDiv = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
+            const jsonPre = document.getElementById('jsonData');
+
+            // Hide result, show loading animation
+            resultDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            jsonPre.textContent = "";
+
+            // Wait 2 seconds to simulate loading (pasurunu da effect 😎)
+            setTimeout(async () => {
+                const response = await fetch('/student');
+                const data = await response.json();
+
+                loadingDiv.style.display = 'none';
+                resultDiv.style.display = 'block';
+
+                // Typewriter effect for JSON
+                const text = JSON.stringify(data, null, 2);
+                let i = 0;
+                const typing = setInterval(() => {
+                    jsonPre.textContent += text.charAt(i);
+                    i++;
+                    if (i > text.length) clearInterval(typing);
+                }, 20);
+            }, 1500);
         });
     </script>
 </body>
@@ -180,9 +215,10 @@ def student():
         "name": "Kuka Zechariah",
         "grade": 10,
         "section": "Alpha",
-        "hobby": "Coding, Music 🎧, and Gaming 🎮",
+        "hobby": "Coding, Music 🎧, Gaming 🎮",
+        "goal": "Build cool APIs like this one!",
         "favorite_quote": "Dream big, code bigger 💻",
-        "api_version": "v2.0"
+        "api_version": "v2.1"
     }
     return jsonify(student_data)
 
