@@ -16,7 +16,7 @@ home_html = """
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1);
       color: white;
       font-family: 'Poppins', sans-serif;
       height: 100vh;
@@ -43,7 +43,7 @@ home_html = """
 <body>
   <div>
     <h1>💫 Welcome to <span style="color:#FFD700;">Student Info Portal</span></h1>
-    <p>Manage your students easily with style! 🌟</p>
+    <p>Manage your students with style! 🌟</p>
     <a href="/add_student" class="btn btn-custom btn-add">➕ Add Student</a>
     <a href="/view_students" class="btn btn-custom btn-view">👀 View Students</a>
   </div>
@@ -131,7 +131,7 @@ add_student_html = """
 </html>
 """
 
-# ---------- VIEW STUDENTS PAGE (CARD DESIGN) ----------
+# ---------- VIEW STUDENTS PAGE ----------
 view_students_html = """
 <!DOCTYPE html>
 <html lang="en">
@@ -142,38 +142,39 @@ view_students_html = """
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #11998e, #38ef7d);
+      background: linear-gradient(135deg, #f6d365, #fda085, #a1c4fd, #c2e9fb);
       font-family: 'Poppins', sans-serif;
       padding: 30px;
       min-height: 100vh;
     }
     .card-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 25px;
     }
     .student-card {
-      background: rgba(255,255,255,0.15);
+      background: linear-gradient(135deg, #ff9a9e, #fecfef, #a18cd1);
       border-radius: 20px;
       padding: 20px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-      backdrop-filter: blur(10px);
+      color: white;
       transition: 0.3s;
     }
     .student-card:hover { transform: scale(1.03); }
-    h5 { color: #FFD700; }
-    p { color: #fff; margin: 5px 0; }
+    h5 { color: #FFD700; margin-bottom: 10px; }
+    p { margin: 4px 0; }
     .btn-delete {
-      background: #FF4C4C;
+      background: linear-gradient(90deg, #FF416C, #FF4B2B);
       border: none;
       border-radius: 50px;
-      padding: 5px 15px;
+      padding: 8px 15px;
       color: white;
       font-weight: bold;
       transition: 0.2s;
       margin-top: 10px;
+      width: 100%;
     }
-    .btn-delete:hover { background: #FF0000; transform: scale(1.05); }
+    .btn-delete:hover { transform: scale(1.05); }
     .top-buttons {
       margin-bottom: 20px;
       text-align: center;
@@ -204,7 +205,7 @@ view_students_html = """
       <p><strong>Course:</strong> {{ s.course }}</p>
       <p><strong>Email:</strong> {{ s.email }}</p>
       <p><strong>Address:</strong> {{ s.address }}</p>
-      <a href="/delete_student/{{ loop.index0 }}" class="btn btn-delete w-100">Delete</a>
+      <a href="/delete_student/{{ loop.index0 }}" class="btn btn-delete">Delete</a>
     </div>
     {% endfor %}
   </div>
