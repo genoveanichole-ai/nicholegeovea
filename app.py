@@ -5,18 +5,18 @@ app = Flask(__name__)
 # Temporary in-memory storage for students
 students = []
 
-# ---------- HOME PAGE ----------
+# ---------- PAGE 1: HOME ----------
 home_html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Info Portal 🚀</title>
+  <title>Welcome to Student Data 🚀</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1);
+      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
       color: white;
       font-family: 'Poppins', sans-serif;
       height: 100vh;
@@ -33,7 +33,6 @@ home_html = """
       border: none;
       transition: 0.3s;
       color: #222;
-      font-size: 18px;
     }
     .btn-add { background: linear-gradient(90deg, #FFD700, #FFA500); }
     .btn-view { background: linear-gradient(90deg, #00C9FF, #92FE9D); }
@@ -43,7 +42,7 @@ home_html = """
 <body>
   <div>
     <h1>💫 Welcome to <span style="color:#FFD700;">Student Info Portal</span></h1>
-    <p>Manage your students with style! 🌟</p>
+    <p>Manage your students easily.</p>
     <a href="/add_student" class="btn btn-custom btn-add">➕ Add Student</a>
     <a href="/view_students" class="btn btn-custom btn-view">👀 View Students</a>
   </div>
@@ -51,7 +50,7 @@ home_html = """
 </html>
 """
 
-# ---------- ADD STUDENT PAGE ----------
+# ---------- PAGE 2: ADD STUDENT ----------
 add_student_html = """
 <!DOCTYPE html>
 <html lang="en">
@@ -72,15 +71,13 @@ add_student_html = """
     }
     .form-card {
       background: rgba(255,255,255,0.12);
-      border-radius: 20px;
+      border-radius: 16px;
       padding: 40px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      backdrop-filter: blur(15px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
       width: 100%;
       max-width: 500px;
-      transition: 0.3s;
     }
-    .form-card:hover { transform: scale(1.02); }
     .form-control {
       background: rgba(255,255,255,0.2);
       border: none;
@@ -94,7 +91,6 @@ add_student_html = """
       border-radius: 50px;
       padding: 10px 25px;
       font-weight: bold;
-      font-size: 16px;
     }
     .btn-submit:hover { transform: scale(1.05); }
     a { color: #FFD700; text-decoration: none; }
@@ -131,87 +127,95 @@ add_student_html = """
 </html>
 """
 
-# ---------- VIEW STUDENTS PAGE ----------
+# ---------- PAGE 3: VIEW STUDENTS ----------
 view_students_html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Info 👀</title>
+  <title>View Students 👀</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(135deg, #f6d365, #fda085, #a1c4fd, #c2e9fb);
-      font-family: 'Poppins', sans-serif;
-      padding: 30px;
-      min-height: 100vh;
-    }
-    .card-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 25px;
-    }
-    .student-card {
-      background: linear-gradient(135deg, #ff9a9e, #fecfef, #a18cd1);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      background: linear-gradient(135deg, #11998e, #38ef7d);
       color: white;
+      font-family: 'Poppins', sans-serif;
+      padding: 40px;
+    }
+    table {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      backdrop-filter: blur(8px);
+    }
+    th { color: #FFD700; }
+    .btn-back {
+      background-color: transparent;
+      border: 2px solid #FFD700;
+      color: #FFD700;
+      border-radius: 50px;
+      padding: 10px 25px;
+      text-decoration: none;
       transition: 0.3s;
     }
-    .student-card:hover { transform: scale(1.03); }
-    h5 { color: #FFD700; margin-bottom: 10px; }
-    p { margin: 4px 0; }
+    .btn-back:hover {
+      background-color: #FFD700;
+      color: #222;
+    }
     .btn-delete {
-      background: linear-gradient(90deg, #FF416C, #FF4B2B);
+      background: #FF4C4C;
       border: none;
       border-radius: 50px;
-      padding: 8px 15px;
+      padding: 5px 15px;
       color: white;
       font-weight: bold;
       transition: 0.2s;
-      margin-top: 10px;
-      width: 100%;
     }
-    .btn-delete:hover { transform: scale(1.05); }
-    .top-buttons {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .btn-top {
-      border-radius: 50px;
-      padding: 10px 20px;
-      font-weight: bold;
-      margin: 5px;
-      transition: 0.3s;
-    }
-    .btn-top:hover { transform: scale(1.05); }
+    .btn-delete:hover { background: #FF0000; transform: scale(1.05); }
   </style>
 </head>
 <body>
-  <div class="top-buttons">
-    <a href="/add_student" class="btn btn-warning btn-top">➕ Add Another</a>
-    <a href="/" class="btn btn-dark btn-top">← Back to Portal</a>
-  </div>
-  {% if students %}
-  <div class="card-container">
-    {% for s in students %}
-    <div class="student-card">
-      <h5>{{ s.name }}</h5>
-      <p><strong>ID:</strong> {{ s.student_id }}</p>
-      <p><strong>Grade:</strong> {{ s.grade }}</p>
-      <p><strong>Section:</strong> {{ s.section }}</p>
-      <p><strong>Course:</strong> {{ s.course }}</p>
-      <p><strong>Email:</strong> {{ s.email }}</p>
-      <p><strong>Address:</strong> {{ s.address }}</p>
-      <a href="/delete_student/{{ loop.index0 }}" class="btn btn-delete">Delete</a>
+  <div class="container">
+    <h2 class="text-center mb-4">👀 Student Info</h2>
+    {% if students %}
+    <table class="table table-striped table-bordered text-center align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Grade</th>
+          <th>Section</th>
+          <th>Course</th>
+          <th>Email</th>
+          <th>Address</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        <tr>
+          <td>{{ s.student_id }}</td>
+          <td>{{ s.name }}</td>
+          <td>{{ s.grade }}</td>
+          <td>{{ s.section }}</td>
+          <td>{{ s.course }}</td>
+          <td>{{ s.email }}</td>
+          <td>{{ s.address }}</td>
+          <td>
+            <a href="/delete_student/{{ loop.index0 }}" class="btn btn-delete">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-center mt-5">📭 No students added yet.</p>
+    {% endif %}
+    <div class="text-center mt-4">
+      <a href="/add_student" class="btn btn-warning me-2">➕ Add Another</a>
+      <a href="/" class="btn-back">← Back to Portal</a>
     </div>
-    {% endfor %}
   </div>
-  {% else %}
-  <p class="text-center mt-5" style="color:white; font-size:18px;">📭 No students added yet.</p>
-  {% endif %}
 </body>
 </html>
 """
