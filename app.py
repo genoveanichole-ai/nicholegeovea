@@ -1,208 +1,239 @@
-from flask import Flask, jsonify, render_template_string
+from flask import Flask, jsonify, render_template_string, request, redirect, url_for
 
 app = Flask(__name__)
 
-# ---------- PAGE 1: HOME / PORTAL ----------
+# Temporary in-memory storage
+students = []
+
+# ---------- PAGE 1: HOME ----------
 home_html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KUKA API Portal 🚀</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
-            color: white;
-            font-family: 'Poppins', sans-serif;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        h1 {
-            font-size: 3rem;
-            animation: glow 2s infinite alternate;
-        }
-        @keyframes glow {
-            from { text-shadow: 0 0 10px #FFD700; }
-            to { text-shadow: 0 0 25px #00FFFF; }
-        }
-        .btn-enter {
-            margin-top: 30px;
-            background: linear-gradient(90deg, #00C9FF, #92FE9D);
-            border: none;
-            color: #222;
-            font-weight: bold;
-            padding: 15px 40px;
-            border-radius: 50px;
-            transition: 0.4s;
-            font-size: 1.1rem;
-        }
-        .btn-enter:hover {
-            background: linear-gradient(90deg, #92FE9D, #00C9FF);
-            transform: scale(1.1);
-        }
-        p {
-            opacity: 0.8;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KUKA Student Portal 🚀</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .btn-custom {
+      margin: 15px;
+      padding: 15px 35px;
+      border-radius: 50px;
+      font-weight: bold;
+      border: none;
+      transition: 0.3s;
+      color: #222;
+    }
+    .btn-add { background: linear-gradient(90deg, #FFD700, #FFA500); }
+    .btn-book { background: linear-gradient(90deg, #00C9FF, #92FE9D); }
+    .btn-custom:hover { transform: scale(1.1); }
+  </style>
 </head>
 <body>
-    <div>
-        <h1>💫 Welcome to <span style="color:#FFD700;">KUKA API Portal</span></h1>
-        <p>Access your student profile and data anytime, anywhere.</p>
-        <a href="/student_data" class="btn btn-enter">Go to Student Data 🎓</a>
-    </div>
+  <div>
+    <h1>💫 Welcome to <span style="color:#FFD700;">KUKA Student Portal</span></h1>
+    <p>Manage your students easily.</p>
+    <a href="/add_student" class="btn btn-custom btn-add">➕ Add Student</a>
+    <a href="/student_book" class="btn btn-custom btn-book">📘 View Student Book</a>
+  </div>
 </body>
 </html>
 """
 
-# ---------- PAGE 2: STUDENT DATA ----------
-student_html = """
+# ---------- PAGE 2: ADD STUDENT ----------
+add_student_html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KUKA Student Data 🎓</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 30px;
-        }
-        .card {
-            background: rgba(255,255,255,0.12);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            text-align: left;
-            max-width: 600px;
-            width: 100%;
-            transition: 0.4s;
-        }
-        .card:hover {
-            transform: scale(1.03);
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #FFD700;
-        }
-        .info-label {
-            font-weight: 600;
-            color: #00FFAA;
-        }
-        .info-value {
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
-        .btn-back {
-            margin-top: 25px;
-            background-color: transparent;
-            border: 2px solid #FFD700;
-            color: #FFD700;
-            border-radius: 50px;
-            padding: 10px 25px;
-            text-decoration: none;
-            transition: 0.3s;
-            display: inline-block;
-        }
-        .btn-back:hover {
-            background-color: #FFD700;
-            color: #222;
-        }
-        .btn-json {
-            background: linear-gradient(90deg, #FF512F, #F09819);
-            border: none;
-            color: white;
-            border-radius: 50px;
-            padding: 10px 25px;
-            margin-top: 15px;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        .btn-json:hover {
-            background: linear-gradient(90deg, #F09819, #FF512F);
-        }
-        .json-box {
-            background: rgba(0,0,0,0.4);
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 10px;
-            display: none;
-            color: #00FFAA;
-            font-size: 0.9rem;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Student ✍️</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .form-card {
+      background: rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      width: 100%;
+      max-width: 500px;
+    }
+    .form-control {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+    }
+    .form-control::placeholder { color: #ddd; }
+    .btn-submit {
+      background: linear-gradient(90deg, #FF512F, #F09819);
+      border: none;
+      color: white;
+      border-radius: 50px;
+      padding: 10px 25px;
+      font-weight: bold;
+    }
+    .btn-submit:hover { transform: scale(1.05); }
+    a { color: #FFD700; text-decoration: none; }
+  </style>
 </head>
 <body>
-    <div class="card">
-        <h2>🎓 Student Information</h2>
-        <div class="info-value"><span class="info-label">Student ID:</span> 2025-001</div>
-        <div class="info-value"><span class="info-label">Name:</span> Kuka Zechariah</div>
-        <div class="info-value"><span class="info-label">Gender:</span> Male</div>
-        <div class="info-value"><span class="info-label">Grade Level:</span> 10</div>
-        <div class="info-value"><span class="info-label">Section:</span> Alpha</div>
-        <div class="info-value"><span class="info-label">Course:</span> ICT - Programming</div>
-        <div class="info-value"><span class="info-label">Email:</span> kuka.zechariah@studentportal.edu</div>
-        <div class="info-value"><span class="info-label">Address:</span> Brgy. Malipayon, Iloilo City</div>
-        <div class="info-value"><span class="info-label">Hobby:</span> Coding 💻, Gaming 🎮, Music 🎧</div>
-        <div class="info-value"><span class="info-label">Quote:</span> "Dream big, code bigger." 🌟</div>
-
-        <button id="show-json" class="btn btn-json">Show API JSON 📦</button>
-        <pre id="json-box" class="json-box"></pre>
-
-        <a href="/" class="btn-back">← Back to Portal</a>
+  <form action="/add_student" method="POST" class="form-card">
+    <h2 class="text-center mb-4">📝 Add Student</h2>
+    <div class="mb-3">
+      <input type="text" class="form-control" name="student_id" placeholder="Student ID" required>
     </div>
-
-    <script>
-        document.getElementById('show-json').addEventListener('click', async () => {
-            const res = await fetch('/student_api');
-            const data = await res.json();
-            const pre = document.getElementById('json-box');
-            pre.textContent = JSON.stringify(data, null, 2);
-            pre.style.display = 'block';
-        });
-    </script>
+    <div class="mb-3">
+      <input type="text" class="form-control" name="name" placeholder="Full Name" required>
+    </div>
+    <div class="mb-3">
+      <input type="text" class="form-control" name="grade" placeholder="Grade Level" required>
+    </div>
+    <div class="mb-3">
+      <input type="text" class="form-control" name="section" placeholder="Section" required>
+    </div>
+    <div class="mb-3">
+      <input type="text" class="form-control" name="course" placeholder="Course" required>
+    </div>
+    <div class="mb-3">
+      <input type="email" class="form-control" name="email" placeholder="Email" required>
+    </div>
+    <div class="mb-3">
+      <input type="text" class="form-control" name="address" placeholder="Address" required>
+    </div>
+    <button type="submit" class="btn btn-submit w-100">Add to Book 📖</button>
+    <p class="text-center mt-3"><a href="/">← Back to Portal</a></p>
+  </form>
 </body>
 </html>
 """
 
+# ---------- PAGE 3: STUDENT BOOK ----------
+book_html = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Book 📘</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #11998e, #38ef7d);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      padding: 40px;
+    }
+    table {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      backdrop-filter: blur(8px);
+    }
+    th { color: #FFD700; }
+    .btn-back {
+      background-color: transparent;
+      border: 2px solid #FFD700;
+      color: #FFD700;
+      border-radius: 50px;
+      padding: 10px 25px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .btn-back:hover {
+      background-color: #FFD700;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="text-center mb-4">📖 Student Book</h2>
+    {% if students %}
+    <table class="table table-striped table-bordered text-center align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Grade</th>
+          <th>Section</th>
+          <th>Course</th>
+          <th>Email</th>
+          <th>Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        <tr>
+          <td>{{ s.student_id }}</td>
+          <td>{{ s.name }}</td>
+          <td>{{ s.grade }}</td>
+          <td>{{ s.section }}</td>
+          <td>{{ s.course }}</td>
+          <td>{{ s.email }}</td>
+          <td>{{ s.address }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-center mt-5">📭 No students added yet.</p>
+    {% endif %}
+    <div class="text-center mt-4">
+      <a href="/add_student" class="btn btn-warning me-2">➕ Add Another</a>
+      <a href="/" class="btn-back">← Back to Portal</a>
+    </div>
+  </div>
+</body>
+</html>
+"""
+
+# ---------- ROUTES ----------
 @app.route('/')
 def home():
     return render_template_string(home_html)
 
-@app.route('/student_data')
-def student_data():
-    return render_template_string(student_html)
+@app.route('/add_student', methods=['GET', 'POST'])
+def add_student():
+    if request.method == 'POST':
+        student = {
+            "student_id": request.form['student_id'],
+            "name": request.form['name'],
+            "grade": request.form['grade'],
+            "section": request.form['section'],
+            "course": request.form['course'],
+            "email": request.form['email'],
+            "address": request.form['address']
+        }
+        students.append(student)
+        return redirect(url_for('student_book'))
+    return render_template_string(add_student_html)
+
+@app.route('/student_book')
+def student_book():
+    return render_template_string(book_html, students=students)
 
 @app.route('/student_api')
 def student_api():
-    student_data = {
-        "student_id": 
-        "name": 
-        "gender":
-        "grade_level": 
-        "section": 
-        "course": 
-        "email": 
-        "address": 
-        "hobby": 
-        "quote": 
-    }
-    return jsonify(student_data)
+    return jsonify(students)
 
 if __name__ == '__main__':
     app.run(debug=True)
