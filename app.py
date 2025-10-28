@@ -5,14 +5,14 @@ app = Flask(__name__)
 # Temporary in-memory storage for students
 students = []
 
-# ---------- PAGE 1: HOME ----------
+# ---------- HOME PAGE ----------
 home_html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to Student Data </title>
+  <title>Student Data </title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -41,7 +41,7 @@ home_html = """
 </head>
 <body>
   <div>
-    <h1>💫 Welcome to <span style="color:#FFD700;">Student Info Portal</span></h1>
+    <h1>💫 Welcome to <span style="color:#FFD700;">Student Info </span></h1>
     <p>Manage your students easily.</p>
     <a href="/add_student" class="btn btn-custom btn-add">➕ Add Student</a>
     <a href="/view_students" class="btn btn-custom btn-view">👀 View Students</a>
@@ -50,7 +50,7 @@ home_html = """
 </html>
 """
 
-# ---------- PAGE 2: ADD STUDENT ----------
+# ---------- ADD STUDENT PAGE ----------
 add_student_html = """
 <!DOCTYPE html>
 <html lang="en">
@@ -127,41 +127,41 @@ add_student_html = """
 </html>
 """
 
-# ---------- PAGE 3: VIEW STUDENTS ----------
+# ---------- VIEW STUDENTS PAGE (Card style) ----------
 view_students_html = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>View Students 👀</title>
+  <title>View Students </title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
       background: linear-gradient(135deg, #11998e, #38ef7d);
       color: white;
       font-family: 'Poppins', sans-serif;
-      padding: 40px;
+      padding: 30px;
+      min-height: 100vh;
     }
-    table {
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .student-card {
       background: rgba(255,255,255,0.15);
-      border-radius: 10px;
+      padding: 20px;
+      border-radius: 20px;
       backdrop-filter: blur(8px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      transition: transform 0.3s;
     }
-    th { color: #FFD700; }
-    .btn-back {
-      background-color: transparent;
-      border: 2px solid #FFD700;
-      color: #FFD700;
-      border-radius: 50px;
-      padding: 10px 25px;
-      text-decoration: none;
-      transition: 0.3s;
+    .student-card:hover {
+      transform: scale(1.05);
     }
-    .btn-back:hover {
-      background-color: #FFD700;
-      color: #222;
-    }
+    .student-card h5 { color: #FFD700; margin-bottom: 10px; }
+    .student-card p { margin: 3px 0; }
     .btn-delete {
       background: #FF4C4C;
       border: none;
@@ -169,53 +169,46 @@ view_students_html = """
       padding: 5px 15px;
       color: white;
       font-weight: bold;
+      margin-top: 10px;
+      width: 100%;
       transition: 0.2s;
     }
     .btn-delete:hover { background: #FF0000; transform: scale(1.05); }
+    .top-buttons { text-align: center; margin-bottom: 20px; }
+    .btn-top {
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-weight: bold;
+      margin: 5px;
+      transition: 0.3s;
+    }
+    .btn-top:hover { transform: scale(1.05); }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2 class="text-center mb-4">👀 Student Info</h2>
-    {% if students %}
-    <table class="table table-striped table-bordered text-center align-middle">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Grade</th>
-          <th>Section</th>
-          <th>Course</th>
-          <th>Email</th>
-          <th>Address</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for s in students %}
-        <tr>
-          <td>{{ s.student_id }}</td>
-          <td>{{ s.name }}</td>
-          <td>{{ s.grade }}</td>
-          <td>{{ s.section }}</td>
-          <td>{{ s.course }}</td>
-          <td>{{ s.email }}</td>
-          <td>{{ s.address }}</td>
-          <td>
-            <a href="/delete_student/{{ loop.index0 }}" class="btn btn-delete">Delete</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p class="text-center mt-5">📭 No students added yet.</p>
-    {% endif %}
-    <div class="text-center mt-4">
-      <a href="/add_student" class="btn btn-warning me-2">➕ Add Another</a>
-      <a href="/" class="btn-back">← Back to Portal</a>
-    </div>
+  <div class="top-buttons">
+    <a href="/add_student" class="btn btn-warning btn-top">➕ Add Another</a>
+    <a href="/" class="btn btn-dark btn-top">← Back to Portal</a>
   </div>
+
+  {% if students %}
+  <div class="cards-container">
+    {% for s in students %}
+    <div class="student-card">
+      <h5>{{ s.name }}</h5>
+      <p><strong>ID:</strong> {{ s.student_id }}</p>
+      <p><strong>Grade:</strong> {{ s.grade }}</p>
+      <p><strong>Section:</strong> {{ s.section }}</p>
+      <p><strong>Course:</strong> {{ s.course }}</p>
+      <p><strong>Email:</strong> {{ s.email }}</p>
+      <p><strong>Address:</strong> {{ s.address }}</p>
+      <a href="/delete_student/{{ loop.index0 }}" class="btn btn-delete">Delete</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-center mt-5">📭 No students added yet.</p>
+  {% endif %}
 </body>
 </html>
 """
